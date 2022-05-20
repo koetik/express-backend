@@ -16,31 +16,21 @@ exports.getProduct = async (req, res) => {
         },
     };
 
-    Product.findAll({
-            where: where
-        })
-        .then(data => {
-            if (data.length <= 0) {
-                data = controller.apiResponse('data tidak ditemukan', false)
-                return res.status(404).send(data);
-            }
-            data = controller.apiResponse(productMultipleTransform(data), true)
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving user."
-            });
-        });
+    var product = await Product.findAll({
+        where: where
+    })
+
+    if (product.length <= 0) {
+        data = controller.apiResponse('data tidak ditemukan', false)
+        return res.status(404).send(data);
+    }
+    data = controller.apiResponse(productMultipleTransform(product), true)
+    return res.send(data);
+    
 };
 
 exports.create = (req, res) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //     var data = controller.apiResponse(errors.array()[0].msg, false)
-    //     return res.status(422).send(data);
-    // }
-
+    
     let uploadFile = upload.store('pict')
 
     uploadFile(req, res, function (err) {

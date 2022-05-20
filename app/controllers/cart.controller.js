@@ -28,11 +28,6 @@ exports.getCart = (req, res) => {
 
 exports.create = async (req, res) => {
 
-    var getCart = await Cart.findOne({
-        where: {
-            product_id: req.body.product_id
-        },
-    });
     var getProduct = await Product.findByPk(req.body.product_id);
 
     if(getProduct.stock == 0) {
@@ -40,7 +35,12 @@ exports.create = async (req, res) => {
         return res.status(500).send(data);
     }
 
-
+    var getCart = await Cart.findOne({
+        where: {
+            product_id: req.body.product_id
+        },
+    });
+    
     var qty = (getCart) ? getCart.qty + 1 : 1
 
     const cartData = {
@@ -103,7 +103,7 @@ exports.clear = async (req, res) => {
     });
     var getProduct = await Product.findByPk(req.body.product_id);
     
-    
+
     
 }
 
