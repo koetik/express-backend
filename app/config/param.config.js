@@ -1,0 +1,6 @@
+module.exports = {
+    DISPOSISI_NEW: 'SD01',
+    DISPOSISI: 'SD02',
+    SURAT_MASUK_NEW: 'SM01',
+    SURAT_MASUK_DISPOSISI: 'SM02',
+}
