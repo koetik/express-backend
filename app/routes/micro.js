@@ -12,5 +12,8 @@ module.exports = function (app) {
   router.post("/carts", cart.create);
   router.post("/carts/clear", cart.clear);
 
+  router.post("/carts/:id/sub", cart.sub);
+  router.post("/carts/:id/min", cart.min);
+
   app.use('/api', router);
 };
