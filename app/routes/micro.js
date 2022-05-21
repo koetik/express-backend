@@ -10,5 +10,7 @@ module.exports = function (app) {
 
   router.get("/carts", cart.getCart);
   router.post("/carts", cart.create);
+  router.post("/carts/clear", cart.clear);
+
   app.use('/api', router);
 };

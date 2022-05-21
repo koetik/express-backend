@@ -5,25 +5,20 @@ const Cart = db.cart;
 const Product = db.product;
 const Op = db.Sequelize.Op;
 
-exports.getCart = (req, res) => {
+exports.getCart = async (req, res) => {
     var where = {};
 
-    Cart.findAll({
-            where: where
-        })
-        .then(data => {
-            if (data.length <= 0) {
-                data = controller.apiResponse('data tidak ditemukan', false)
-                return res.status(404).send(data);
-            }
-            data = controller.apiResponse(cartMultipleTransform(data), true)
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving user."
-            });
-        });
+    var cart = await Cart.findAll({
+        where: where
+    })
+
+    if(cart.length  < 1) {
+        var dtRes = controller.apiResponse('data tidak ditemukan', false)
+        return res.status(404).send(dtRes);
+    }
+    var dtRes = controller.apiResponse(cartMultipleTransform(cart), true)
+    return res.send(dtRes);
+    
 };
 
 exports.create = async (req, res) => {
@@ -31,7 +26,7 @@ exports.create = async (req, res) => {
     var getProduct = await Product.findByPk(req.body.product_id);
 
     if(getProduct.stock == 0) {
-        var data = controller.apiResponse(("Stok Habis"), false)
+        var data = controller.apiResponse(("Stok Tidak Mencukupo"), false)
         return res.status(500).send(data);
     }
 
@@ -101,9 +96,37 @@ exports.clear = async (req, res) => {
             product_id: req.body.product_id
         },
     });
-    var getProduct = await Product.findByPk(req.body.product_id);
+    
+    var product = await Product.findByPk(req.body.product_id);
+    
+    try {
+
+        await Product.update(
+            {
+            stock: (product.stock + getCart.qty)
+            },
+            {
+                where : {
+                    id : req.body.product_id
+                }
+            }
+        )
+
+        await Cart.destroy({
+            where: {
+                product_id: req.body.product_id
+            },
+            force: true
+        })
+        var dtRes = controller.apiResponse("Cart telah dihapus", true)
+        return res.send(dtRes);
+    } catch(err) {
+        var data = controller.apiResponse((err.message || "Some error occurred while creating the Product."), false)
+        return res.status(500).send(data);
+    }
     
 
+    
     
 }
 
